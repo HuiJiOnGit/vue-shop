@@ -5,15 +5,15 @@
         <img src="../assets/logo.png" alt />
       </div>
       <el-form class="login-form" ref="loginFormRef" :model="formdata" :rules="rules">
-        <el-form-item prop="usernameRule">
+        <el-form-item prop="username">
           <el-input v-model="formdata.username" prefix-icon="iconfont icon-user" placeholder="请输入用户名"></el-input>
         </el-form-item>
-        <el-form-item prop="passwordRule">
+        <el-form-item prop="password">
           <el-input v-model="formdata.password" prefix-icon="iconfont icon-3702mima" placeholder="请输入密码" type="password"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button type="success">登陆</el-button>
-          <el-button type="info" @click="resetLoginForm">重置</el-button>
+          <el-button type="success" @click="login('loginFormRef')">登陆</el-button>
+          <el-button type="info" @click="resetLoginForm('loginFormRef')">重置</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -24,12 +24,13 @@ export default {
     data() {
         return {
             formdata:{
-                username: '',
-                password: ''
+                username: 'admin',
+                password: '123456'
             },
             rules: {
                 username: [
-                    { required: true, message: '请输入用户名', trigger: 'blur' }
+                    { required: true, message: '请输入用户名', trigger: 'blur' },
+                    { min: 2, max: 20, message: '长度在 3 到 20 个字符', trigger: 'blur' }
                 ],
                 password: [
                     { required: true, message: '请输入密码', trigger: 'blur' },
@@ -39,11 +40,14 @@ export default {
         }
     },
     methods:{
-        resetLoginForm(formName){
-            console.log(this.$refs);
-            this.$refs.loginFormRef.resetFields();
-            //console.log('hello');
-            //this.$refs.loginFormRef.resetFields();
+        resetLoginForm(refname){
+            console.log(refname);
+            this.$refs[refname].resetFields();
+        },
+        login(refname){
+          this.$refs[refname].validate(valid => {
+            console.log(valid);
+          })
         }
     }
 };
