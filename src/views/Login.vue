@@ -45,8 +45,17 @@ export default {
             this.$refs[refname].resetFields();
         },
         login(refname){
-          this.$refs[refname].validate(valid => {
-            console.log(valid);
+          this.$refs[refname].validate(async valid => {
+            if (!valid) {
+              return;
+            }
+            console.log(this.formdata);
+            let {data: res} = await this.$http.post("login",this.formdata);
+            // console.log(res);
+            if (res.meta.status !== 200) return this.$message.error('login error');
+            this.$message.success('login success');
+            window.sessionStorage.setItem('token',res.data.token);
+            this.$router.push('/home');
           })
         }
     }
