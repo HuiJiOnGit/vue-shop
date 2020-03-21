@@ -16,15 +16,14 @@
         <div class="toggle-button"
              @click="toggleCollapse">|||</div>
         <!-- 菜单组件 -->
-        <el-menu default-active="2"
+        <el-menu :default-active="this.$route.path"
                  background-color="rgba(0,0,0,0)"
                  text-color="#000000"
                  active-text-color="#B22222"
                  unique-opened
                  :collapse="isCollapse"
                  :collapse-transition="false"
-                 router
-                 :default-active="this.$route.path">
+                 router>
           <!-- 菜单下拉 -->
           <el-submenu :index="item.id + ''"
                       v-for="item in menulist"
