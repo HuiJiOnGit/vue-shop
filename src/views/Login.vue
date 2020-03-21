@@ -1,15 +1,16 @@
 <template>
   <div class="login-container">
+    <i class="login-bg" :class="style"></i>
     <div class="login-box">
       <div class="avatar-box">
         <img src="../assets/logo.png" alt />
       </div>
       <el-form class="login-form" ref="loginFormRef" :model="formdata" :rules="rules">
         <el-form-item prop="username">
-          <el-input v-model="formdata.username" prefix-icon="iconfont icon-user" placeholder="请输入用户名"></el-input>
+          <el-input v-model="formdata.username" prefix-icon="iconfont icon-user" placeholder="请输入用户名" @focus="onFocus" @blur="onBlur"></el-input>
         </el-form-item>
         <el-form-item prop="password">
-          <el-input v-model="formdata.password" prefix-icon="iconfont icon-3702mima" placeholder="请输入密码" type="password"></el-input>
+          <el-input v-model="formdata.password" prefix-icon="iconfont icon-3702mima" placeholder="请输入密码" type="password" @focus="onFocus" @blur="onBlur"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button type="success" @click="login('loginFormRef')">登陆</el-button>
@@ -36,7 +37,8 @@ export default {
                     { required: true, message: '请输入密码', trigger: 'blur' },
                     { min: 3, max: 20, message: '长度在 3 到 20 个字符', trigger: 'blur' }
                 ]
-            }
+            },
+            style:{blur:false}
         }
     },
     methods:{
@@ -57,6 +59,14 @@ export default {
             window.sessionStorage.setItem('token',res.data.token);
             this.$router.push('/home');
           })
+        },
+        //input获得焦点事件
+        onFocus(){
+          this.style.blur=true;
+        },
+        //input失去焦点事件
+        onBlur(){
+          this.style.blur=false;
         }
     }
 };
@@ -64,12 +74,28 @@ export default {
 <style lang="less" scoped>
 .login-container {
   //background-color: #eee;
-  background: url("https://cn.bing.com/th?id=OHR.TokyoMoat_ZH-CN1430508337_1920x1080.jpg&rf=LaDigue_1920x1080.jpg&pid=hp");
-  background-size: cover;
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
+  position:relative;
+  overflow:hidden;
+}
+.login-bg{
+  background: url("https://cn.bing.com/th?id=OHR.TokyoMoat_ZH-CN1430508337_1920x1080.jpg&rf=LaDigue_1920x1080.jpg&pid=hp");
+  background-size: cover;
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  transition:all 500ms ease-in-out;
+}
+.blur{
+  -webkit-filter:blur(20px);
+  -moz-filter:blur(20px);
+  -ms-filter:blur(20px);
+  filter:blur(20px);
 }
 .login-box {
   width: 28vw;
@@ -82,7 +108,7 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center; 
+  justify-content: center;
 
   .avatar-box {
     width: 120px;
@@ -100,7 +126,7 @@ export default {
   }
 
   .login-form{
-      min-width: 360px;      
+      min-width: 360px;
   }
 }
 </style>
