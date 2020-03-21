@@ -227,7 +227,7 @@
            }
            // 这里区分是添加还是修改
            let {data: res} = await this.$http.post('users',this.userform);
-           
+
            if (res.meta.status !== 201) {
              this.$message.error('添加用户失败');
              return
@@ -269,7 +269,7 @@
           this.$message({
             type: 'info',
             message: '已取消删除'
-          });          
+          });
         });
       }
     },

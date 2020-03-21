@@ -2,17 +2,23 @@
   <!-- 主体部分 -->
   <el-container class="home-container">
     <!-- 头部 -->
-    <el-header>
+    <el-header :class="{'header-container-dark':getDark}">
       <div class="logo">
         <img src="../assets/heima.png"
              alt="电商管理后台">
         <span>电商管理后台</span>
       </div>
-      <el-button @click="logout">登出</el-button>
+      <div class='header-right'>
+        <span @click="onVan">
+          Deep♂Dark♂Fantsy
+        </span>
+        <el-button @click="logout">登出</el-button>
+      </div>
+      <!-- <el-button @click="logout">登出</el-button> -->
     </el-header>
-    <el-container>
+    <el-container class="{'container-bg-dark':getDark}">
       <!-- 侧边栏 -->
-      <el-aside :width="isCollapse ? '64px' : '200px'">
+      <el-aside :width="isCollapse ? '64px' : '200px'" :class="{'left-dark':getDark}">
         <div class="toggle-button"
              @click="toggleCollapse" :class="togglestyle">|||</div>
         <!-- 菜单组件 -->
@@ -44,7 +50,7 @@
         </el-menu>
       </el-aside>
       <!-- mian -->
-      <el-main class="welcome">
+      <el-main class="welcome" :class="{'container-bg-dark':getDark}">
         <router-view/>
       </el-main>
     </el-container>
@@ -65,7 +71,8 @@
         // 左侧菜单
         menulist: [],
         isCollapse: false,
-        togglestyle:{toggle:false}
+        togglestyle:{toggle:false},
+        dark:false
       }
     },
     methods: {
@@ -85,10 +92,20 @@
       toggleCollapse() {
         this.isCollapse = !this.isCollapse;
         this.togglestyle.toggle=this.isCollapse
+      },
+      //变van模式
+      onVan(){
+        this.dark=!this.dark
+        this.$store.commit('onVan',this.dark);
       }
     },
     created() {
       this.getMenuList()
+    },
+    computed:{
+      getDark(){
+        return this.$store.state.dark
+      }
     }
   }
 </script>
@@ -143,7 +160,7 @@
     color: #333;
   }
   .welcome{
-    backgound:rgba(128,128,128,.1);
+    background:rgba(128,128,128,.1);
   }
   /deep/.welcome>div{
     width:100%;
@@ -219,5 +236,15 @@
     color:#fff;
   }
   background-color:#409EFF !important;
+  }
+  .header-right{
+    >span{
+      font-size:14px;
+      color:#fff;
+      display:inline-block;
+      margin:0 10px;
+      cursor:pointer;
+      user-select:none;
+    }
   }
 </style>
