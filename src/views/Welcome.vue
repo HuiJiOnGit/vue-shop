@@ -1,7 +1,7 @@
 <template>
     <div class="welcome-container">
-        <h1 class='welcome-font-title'>Welcome</h1>
-        <p class="welcome-font-name">电商管理系统</p>
+        <h1 class='welcome-font-title' :class="{'font-dark':getDark}">Welcome</h1>
+        <p class="welcome-font-name" :class="{'font-dark':getDark}">电商管理系统</p>
     </div>
 </template>
 
@@ -11,6 +11,11 @@
     data(){
       return{
 
+      }
+    },
+    computed:{
+      getDark(){
+        return this.$store.state.dark
       }
     }
   }
