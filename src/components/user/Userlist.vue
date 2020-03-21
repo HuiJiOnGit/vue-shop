@@ -60,50 +60,20 @@
       </el-pagination>
 
       <!-- 对话框 -->
-      <el-dialog :title="dialogTitle" :visible.sync="dialogFormVisible" width="30%" @close="CloseDialog">
-        <el-form :model="userform" :rules="rules" ref="FormRef">
-          <el-form-item label="用户名" label-width="70px" prop="username">
-            <el-input v-model="userform.username" autocomplete="off"></el-input>
-          </el-form-item>
-          <el-form-item label="密码" label-width="70px" prop="password" v-if="dialogFormPasswordItemVisible">
-            <el-input v-model="userform.password" autocomplete="off" type="password"></el-input>
-          </el-form-item>
-          <el-form-item label="邮箱" label-width="70px" prop="email">
-            <el-input v-model="userform.email" autocomplete="off"></el-input>
-          </el-form-item>
-          <el-form-item label="手机" label-width="70px" prop="mobile">
-            <el-input v-model="userform.mobile" autocomplete="off"></el-input>
-          </el-form-item>
-        </el-form>
-        <!-- dibu -->
-        <div slot="footer" class="dialog-footer">
-          <el-button @click="CancelDialog">取 消</el-button>
-          <el-button type="primary" @click="UserCommit">确 定</el-button>
-        </div>
-      </el-dialog>
+      <user-dialog @updateUserList='getUsrList'></user-dialog>
+
     </el-card>
   </div>
 </template>
 
 <script>
+  import UserDialog from './UserDialog.vue'
   export default {
     name: "Userlist",
-    data() {
-      let checkeamil = (rule,value,cb) => {
-        let regEmail = /^([a-zA-Z]|[0-9])(\w|\-)+@[a-zA-Z0-9]+\.([a-zA-Z]{2,4})$/;
-        if (regEmail.test(value)) {
-          return cb();
-        }
-        cb(new Error('请输入合法的邮箱'))
-      }
-      let checkmobile = (rule,value,cb) => {
-        let regmobile = /^1(3|4|5|6|7|8|9)\d{9}$/;
-        if (regmobile.test(value)) {
-          return cb();
-        }
-        cb(new Error('请输入合法的手机号'))
-      }
-
+    components:{
+      'user-dialog':UserDialog
+    },
+    data() {    
       return {
         // 查询用户列表参数
         queryInfo: {
@@ -116,67 +86,11 @@
         // 用户list
         userlist: [],
         // 总数量
-        total: 0,
-        // 对话框是否显示
-        dialogFormVisible: false,
-        // 对话框中的userform
-        userform: {
-          username: '',
-          password: '',
-          email: '',
-          mobile: ''
-        },
-        // 对话框中的userform验证规则
-        rules: {
-          username: [{
-              required: true,
-              message: '请输入用户名',
-              trigger: 'blur'
-            },
-            {
-              min: 2,
-              max: 20,
-              message: '长度在 3 到 20 个字符',
-              trigger: 'blur'
-            }
-          ],
-          password: [{
-              required: true,
-              message: '请输入password',
-              trigger: 'blur'
-            },
-            {
-              min: 2,
-              max: 20,
-              message: '长度在 3 到 20 个字符',
-              trigger: 'blur'
-            }],
-          email:[{
-            required: true,
-            message: '请输入email',
-            trigger: 'blur'
-          },
-          {
-            validator: checkeamil,
-            trigger: 'blur'
-          }],
-          mobile: [{
-            required: true,
-            message: '请输入mobile',
-            trigger: 'blur'
-          },
-          {
-            validator: checkmobile,
-            trigger: 'blur'
-          }]
-        },
-        // 对话框密码form-item是否显示
-        dialogFormPasswordItemVisible: true,
-        // 对话框title
-        dialogTitle: ''
+        total: 0
       }
     },
     methods: {
+      // 获取用户列表
       async getUsrList() {
         let {
           data: res
@@ -188,23 +102,23 @@
         }
         this.userlist = res.data.users;
         this.total = res.data.total;
-        console.log(res);
+        // console.log(res);
       },
       // pagesize改变事件
       handleSizeChange(val) {
-        console.log(`每页 ${val} 条`);
+        // console.log(`每页 ${val} 条`);
         this.queryInfo.pagesize = val;
         this.getUsrList();
       },
       // 切换页码事件
       handleCurrentChange(val) {
-        console.log(`当前页: ${val}`);
+        // console.log(`当前页: ${val}`);
         this.queryInfo.pagenum = val;
         this.getUsrList();
       },
       // 监听 switch开关状态
       async userStateChanged(userinfo) {
-        console.log(userinfo);
+        // console.log(userinfo);
         let {
           data: res
         } = await this.$http.put(`users/${userinfo.id}/state/${userinfo.mg_state}`);
@@ -214,45 +128,13 @@
         }
         this.$message.success('更新用户状态成功');
       },
-      // 对话框关闭事件
-      CloseDialog(){
-        this.$refs.FormRef.resetFields();
-        this.dialogFormPasswordItemVisible = true;
-      },
-      // 对话框确定事件
-      UserCommit(){
-         this.$refs.FormRef.validate(async valid => {
-           if (!valid) {
-             return
-           }
-           // 这里区分是添加还是修改
-           let {data: res} = await this.$http.post('users',this.userform);
-
-           if (res.meta.status !== 201) {
-             this.$message.error('添加用户失败');
-             return
-           }
-           this.$message.success('添加用户成功');
-           this.dialogFormVisible = false;
-         })
+      // 打开添加用户按钮事件
+      AddUser(){
+        this.$store.commit('AddDialog');
       },
       // 打开修改用户按钮事件
       EditUser(id){
-        this.dialogFormVisible = true;
-        this.dialogFormPasswordItemVisible = false;
-        this.dialogTitle = '修改用户';
-        /*修改不想做了*/
-      },
-      // 打开添加用户按钮事件
-      AddUser(){
-        this.dialogFormVisible = true;
-        this.dialogTitle = '添加用户';
-      },
-      // 对话框取消事件
-      CancelDialog(){
-        this.dialogFormVisible = false;
-        //this.dialogFormPasswordItemVisible = true;
-        this.CloseDialog();
+        this.$store.commit('EditDialog',id);
       },
       // 删除用户byid
       removeUserById(id){
