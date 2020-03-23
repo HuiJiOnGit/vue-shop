@@ -1,10 +1,7 @@
 <template>
   <div>
-    <el-breadcrumb separator-class="el-icon-arrow-right">
-      <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
-      <el-breadcrumb-item>活动管理</el-breadcrumb-item>
-      <el-breadcrumb-item>活动列表</el-breadcrumb-item>
-    </el-breadcrumb>
+    <!-- 面包屑部分 -->
+    <bread title1='活动管理' title2='活动列表'></bread>
     <!-- 卡片部分 -->
     <el-card class="box-card">
       <!-- 搜索部分 -->
@@ -68,10 +65,12 @@
 
 <script>
   import UserDialog from './UserDialog.vue'
+  import Bread from '../common/Breadcrumb.vue'
   export default {
     name: "Userlist",
     components:{
-      'user-dialog':UserDialog
+      'user-dialog':UserDialog,
+      'bread': Bread
     },
     data() {    
       return {
