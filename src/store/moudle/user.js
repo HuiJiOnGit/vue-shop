@@ -16,14 +16,14 @@ export default {
     },
     mutations: {
         // 打开对话框
-        AddDialog(state) {
+        AddUserDialog(state) {
             state.dialogFormVisible = true;
             state.dialogFormPasswordItemVisible = true;
             state.dialogTitle = "添加用户";
             state.UserDisabled = false;
         },
         // 编辑对话框
-        EditDialog(state, id) {
+        EditUserDialog(state, id) {
             state.dialogFormVisible = true;
             state.dialogFormPasswordItemVisible = false;
             state.dialogTitle = "编辑用户";
@@ -32,7 +32,7 @@ export default {
             // console.log(id);
         },
         // 关闭事件
-        CloseDialog(state,bool) {
+        CloseUserDialog(state,bool) {
             // console.log(bool);
             state.dialogFormVisible = bool;
             state.userId = null;

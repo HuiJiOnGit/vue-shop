@@ -112,7 +112,7 @@
                     return this.$store.state.user.dialogFormVisible
                 },
                 set: function () {
-                    this.$store.commit('CloseDialog');
+                    this.$store.commit('CloseUserDialog');
                 }
             },
             // 对话框密码form-item是否显示
@@ -142,7 +142,7 @@
             // 对话框关闭事件
             CloseDialog() {
                 this.$refs.FormRef.resetFields();
-                this.$store.commit('CloseDialog', false);
+                this.$store.commit('CloseUserDialog', false);
             },
             // 对话框确定事件
             UserCommit() {
@@ -179,7 +179,7 @@
                         this.$message.success('更新用户信息成功！')
                     }
                     // 关闭窗口
-                    this.$store.commit('CloseDialog', false);
+                    this.$store.commit('CloseUserDialog', false);
                     // 重新获取用户列表数据
                     this.$emit('updateUserList')
                 })

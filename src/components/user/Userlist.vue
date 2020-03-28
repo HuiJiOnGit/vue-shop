@@ -40,7 +40,8 @@
               </el-tooltip>
               <!-- 删除 -->
               <el-tooltip class="item" effect="dark" content="删除" placement="top" :enterable="false">
-                <el-button type="danger" icon="el-icon-delete" size="mini" @click="removeUserById(scope.row.id)"></el-button>
+                <el-button type="danger" icon="el-icon-delete" size="mini" @click="removeUserById(scope.row.id)">
+                </el-button>
               </el-tooltip>
               <!-- 分配角色 -->
               <el-tooltip class="item" effect="dark" content="分配角色" placement="top" :enterable="false">
@@ -68,11 +69,11 @@
   import Bread from '../common/Breadcrumb.vue'
   export default {
     name: "Userlist",
-    components:{
-      'user-dialog':UserDialog,
+    components: {
+      'user-dialog': UserDialog,
       'bread': Bread
     },
-    data() {    
+    data() {
       return {
         // 查询用户列表参数
         queryInfo: {
@@ -128,30 +129,42 @@
         this.$message.success('更新用户状态成功');
       },
       // 打开添加用户按钮事件
-      AddUser(){
-        this.$store.commit('AddDialog');
+      AddUser() {
+        this.$store.commit('AddUserDialog');
       },
       // 打开修改用户按钮事件
-      EditUser(id){
-        this.$store.commit('EditDialog',id);
+      EditUser(id) {
+        this.$store.commit('EditUserDialog', id);
       },
       // 删除用户byid
-      removeUserById(id){
+      removeUserById(id) {        
         this.$confirm('此操作将删除此用户, 是否继续?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
-        }).then(() => {
-          this.$message({
-            type: 'success',
-            message: '删除成功!'
-          });
-        }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: '已取消删除'
-          });
-        });
+        }).then(async (result) => {
+          if (result === 'confirm') {
+            const {
+              data: res
+            } = await this.$http.delete('users/' + id)
+
+            if (res.meta.status !== 200) {
+              return this.$message.error('删除用户失败！')
+            }
+            this.$message({
+              type: 'success',
+              message: '删除成功!'
+            });
+            this.getUsrList();
+          }          
+        }).catch((result) => {
+          if (result === 'cancel') {
+            this.$message({
+              type: 'info',
+              message: '已取消删除'
+            });
+          }
+        });        
       }
     },
     created() {
