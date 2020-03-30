@@ -12,7 +12,37 @@
 
             <!-- 表格 -->
             <el-table :data="rolelist" border stripe>
-                <el-table-column type="expand"></el-table-column>
+
+                <!-- 展开列 -->
+                <el-table-column type="expand">
+                    <template v-slot:default="scope">
+                        <el-row :class="['bdbottom', key === 0 ? 'bdtop' : '','vcenter']"
+                            v-for="(item, key) in scope.row.children" :key="item.id">
+                            <!-- 渲染一级权限 -->
+                            <el-col :span="5">
+                                <el-tag closable @close="removeRightById(scope.row,item.id)">{{item.authName}}</el-tag>
+                                <i class="el-icon-caret-right"></i>
+                            </el-col>
+                            <!-- 渲染二三级权限 -->
+                            <el-col :span="19">
+                                <el-row v-for="(item2 , key2) in item.children" :key="item2.id"
+                                    :class="[key2 === 0 ? '' : 'bdtop','vcenter']">
+                                    <el-col :span="6">
+                                        <el-tag type="success" closable @close="removeRightById(scope.row,item2.id)">{{item2.authName}}</el-tag>
+                                        <i class="el-icon-caret-right"></i>
+                                    </el-col>
+                                    <el-col :span="18">
+                                        <el-tag type="warning" v-for="(item3 ,key3) in item2.children" :key="item3.id"
+                                            closable @close="removeRightById(scope.row,item3.id)">
+                                            {{item3.authName}}
+                                        </el-tag>
+                                    </el-col>
+                                </el-row>
+
+                            </el-col>
+                        </el-row>
+                    </template>
+                </el-table-column>
                 <el-table-column type="index" label="#"></el-table-column>
                 <el-table-column prop="roleName" label="角色名称"></el-table-column>
                 <el-table-column prop="roleDesc" label="角色描述"></el-table-column>
@@ -64,11 +94,11 @@
             AddRole() {
                 this.$store.commit('AddRoleDialog');
             },
-            // 打开修改用户按钮事件
+            // 打开修改角色按钮事件
             EditRole(id) {
                 this.$store.commit('EditRoleDialog', id);
             },
-            // 删除用户byid
+            // 删除角色byid
             removeRoleById(id) {
                 this.$confirm('此操作将删除此角色, 是否继续?', '提示', {
                     confirmButtonText: '确定',
@@ -81,16 +111,48 @@
                         } = await this.$http.delete('roles/' + id)
 
                         if (res.meta.status !== 200) {
-                            return this.$message.error('删除用户失败！')
+                            return this.$message.error('删除角色失败！')
+                        } else {
+                            this.$message({
+                                type: 'success',
+                                message: '删除成功!'
+                            });
                         }
-                        this.$message({
-                            type: 'success',
-                            message: '删除成功!'
-                        });
+
                         this.getRolesList();
                     }
                 }).catch((result) => {
                     if (result === 'cancel') {
+                        this.$message({
+                            type: 'info',
+                            message: '已取消删除'
+                        });
+                    }
+                });
+            },
+            // 删除权限
+            removeRightById(role, id) {
+                this.$confirm('此操作将删除此权限, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(async (result) => {
+                    if (result === 'confirm') {
+                        const {
+                            data: res
+                        } = await this.$http.delete(`roles/${role.id}/rights/${id}`);
+                        if (res.meta.status !== 200) {
+                            return this.$message.error('删除权限失败');
+                        }
+                        console.debug(res);
+                        this.$message({
+                            type: 'success',
+                            message: '删除成功!'
+                        });
+                        role.children = res.data;
+                    }
+                }).catch((err) => {
+                    if (err === 'cancel') {
                         this.$message({
                             type: 'info',
                             message: '已取消删除'
@@ -105,5 +167,20 @@
     }
 </script>
 <style lang="less" scoped>
+    .el-tag {
+        margin: 7px;
+    }
 
+    .bdtop {
+        border-top: 1px solid #eee;
+    }
+
+    .bdbottom {
+        border-bottom: 1px solid #eee;
+    }
+
+    .vcenter {
+        display: flex;
+        align-items: center;
+    }
 </style>

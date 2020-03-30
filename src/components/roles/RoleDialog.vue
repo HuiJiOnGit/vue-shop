@@ -5,10 +5,10 @@
             @open='OpenDialog'>
             <el-form :model="roleForm" :rules="rules" ref="FormRef">
                 <el-form-item label="角色名称" label-width="70px" prop="roleDesc">
-                    <el-input v-model="roleForm.roleDesc" autocomplete="off"></el-input>
+                    <el-input v-model="roleForm.roleName" autocomplete="off"></el-input>
                 </el-form-item>
                 <el-form-item label="角色描述" label-width="70px" prop="roleName">
-                    <el-input v-model="roleForm.roleName" autocomplete="off"></el-input>
+                    <el-input v-model="roleForm.roleDesc" autocomplete="off"></el-input>
                 </el-form-item>
             </el-form>
             <!-- 底部按钮 -->
