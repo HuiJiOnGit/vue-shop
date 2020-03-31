@@ -28,7 +28,8 @@
                                 <el-row v-for="(item2 , key2) in item.children" :key="item2.id"
                                     :class="[key2 === 0 ? '' : 'bdtop','vcenter']">
                                     <el-col :span="6">
-                                        <el-tag type="success" closable @close="removeRightById(scope.row,item2.id)">{{item2.authName}}</el-tag>
+                                        <el-tag type="success" closable @close="removeRightById(scope.row,item2.id)">
+                                            {{item2.authName}}</el-tag>
                                         <i class="el-icon-caret-right"></i>
                                     </el-col>
                                     <el-col :span="18">
@@ -52,7 +53,7 @@
                         </el-button>
                         <el-button size="mini" type="danger" icon="el-icon-delete"
                             @click="removeRoleById(scope.row.id)">删除</el-button>
-                        <el-button size="mini" type="warning" icon="el-icon-setting">分配权限</el-button>
+                        <el-button size="mini" type="warning" icon="el-icon-setting" @click="showRightDialog">分配权限</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -60,6 +61,15 @@
             <!-- 对话框 -->
             <role-dialog @updateRolesList="getRolesList"></role-dialog>
 
+            <!-- 权限对话框 -->
+            <el-dialog title="分配权限" :visible.sync="rightDialogVisible" width="30%" >
+                <!-- 树形控件 -->
+                <el-tree :data="rightsList" :props="defaultProps" show-checkbox node-key="id" default-expand-all :default-expanded-keys="defKeys"></el-tree>
+                <span slot="footer" class="dialog-footer">
+                    <el-button @click="rightDialogVisible = false">取 消</el-button>
+                    <el-button type="primary" @click="rightDialogVisible = false">确 定</el-button>
+                </span>
+            </el-dialog>
         </el-card>
     </div>
 </template>
@@ -75,7 +85,18 @@
         },
         data() {
             return {
-                rolelist: []
+                rolelist: [],
+                // 权限对话框是否显示
+                rightDialogVisible: false,
+                // 权限对话框
+                rightsList: [],
+                // 树形设置
+                defaultProps:{
+                    label: 'authName',
+                    children: 'children'
+                },
+                // 默认选中节点的id值数组
+                defKeys:[]
             }
         },
         methods: {
@@ -159,6 +180,17 @@
                         });
                     }
                 });
+            },
+            // 打开分配权限
+            async showRightDialog() {
+                // 获取所有权限的数据
+                const {data: res} = await this.$http.get('rights/tree')
+
+                if (res.meta.status !== 200) {
+                    return this.$message.error('获取权限失败');
+                }
+                this.rightsList = res.data;
+                this.rightDialogVisible = true;
             }
         },
         created() {
