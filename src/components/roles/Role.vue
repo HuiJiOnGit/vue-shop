@@ -53,7 +53,7 @@
                         </el-button>
                         <el-button size="mini" type="danger" icon="el-icon-delete"
                             @click="removeRoleById(scope.row.id)">删除</el-button>
-                        <el-button size="mini" type="warning" icon="el-icon-setting" @click="showRightDialog">分配权限</el-button>
+                        <el-button size="mini" type="warning" icon="el-icon-setting" @click="showRightDialog(scope.row)">分配权限</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -62,12 +62,19 @@
             <role-dialog @updateRolesList="getRolesList"></role-dialog>
 
             <!-- 权限对话框 -->
-            <el-dialog title="分配权限" :visible.sync="rightDialogVisible" width="30%" >
+            <el-dialog title="分配权限" 
+                       :visible.sync="rightDialogVisible" 
+                       width="30%"
+                       @close="setRightDialogClosed" >
                 <!-- 树形控件 -->
-                <el-tree :data="rightsList" :props="defaultProps" show-checkbox node-key="id" default-expand-all :default-expanded-keys="defKeys"></el-tree>
+                <el-tree :data="rightsList" 
+                         :props="defaultProps" 
+                         show-checkbox node-key="id" 
+                         :default-checked-keys="defKeys"
+                         ref="treeRef"></el-tree>
                 <span slot="footer" class="dialog-footer">
-                    <el-button @click="rightDialogVisible = false">取 消</el-button>
-                    <el-button type="primary" @click="rightDialogVisible = false">确 定</el-button>
+                    <el-button @click="setRightDialogClosed">取 消</el-button>
+                    <el-button type="primary" @click="allotRights">确 定</el-button>
                 </span>
             </el-dialog>
         </el-card>
@@ -96,7 +103,9 @@
                     children: 'children'
                 },
                 // 默认选中节点的id值数组
-                defKeys:[]
+                defKeys:[],
+                //待分配的角色id
+                roleId: ''
             }
         },
         methods: {
@@ -105,7 +114,7 @@
                 const {
                     data: res
                 } = await this.$http.get('roles');
-                console.log(res);
+                //console.log(res);
                 if (res.meta.status !== 200) {
                     return this.$message.error('获取角色列表失败！');
                 }
@@ -165,7 +174,7 @@
                         if (res.meta.status !== 200) {
                             return this.$message.error('删除权限失败');
                         }
-                        console.debug(res);
+                        //console.debug(res);
                         this.$message({
                             type: 'success',
                             message: '删除成功!'
@@ -182,7 +191,7 @@
                 });
             },
             // 打开分配权限
-            async showRightDialog() {
+            async showRightDialog(role) {
                 // 获取所有权限的数据
                 const {data: res} = await this.$http.get('rights/tree')
 
@@ -190,7 +199,48 @@
                     return this.$message.error('获取权限失败');
                 }
                 this.rightsList = res.data;
+
+                this.roleId = role.id;
+
+                this.getLeafKeys(role,this.defKeys);
+
                 this.rightDialogVisible = true;
+            },
+            // 通过递归的形式，获取角色下所有的三级权限的id，并保存到defKeys中
+            getLeafKeys(node,arr){
+                // 如果当前的node 节点不包含children属性，则是三级节点
+                if (!node.children) {
+                    return arr.push(node.id);
+                }
+                node.children.forEach(element => {
+                    this.getLeafKeys(element,arr)
+                });
+            },
+            // 分配权限对话框关闭
+            setRightDialogClosed(){
+                this.defKeys = [];
+                this.rightDialogVisible = false;
+            },
+            // 点击为角色分配权限
+            async allotRights(){
+                let keys = [
+                    ...this.$refs.treeRef.getCheckedKeys(),
+                    ...this.$refs.treeRef.getHalfCheckedKeys()
+                ];
+
+                let idStr = keys.join(',')
+
+                let {data: res} = await this.$http.post(`roles/${this.roleId}/rights`,{rids: idStr});
+
+                if (res.meta.status !== 200) {
+                    return this.$message.error('分配权限失败');
+                }else if(res.meta.status === 200){
+                    this.$message.success('分配权限成功');
+                }                
+
+                this.getRolesList();
+
+                this.rightDialogVisible = false;
             }
         },
         created() {
