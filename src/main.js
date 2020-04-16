@@ -15,8 +15,9 @@ import './assets/css/dark.css'
 import axios from 'axios'
 
 Vue.prototype.$http = axios
-axios.defaults.baseURL = 'http://127.0.0.1:8888/api/private/v1/'
+axios.defaults.baseURL = 'http://47.115.124.102:8888/api/private/v1'
 
+// 'http://47.115.124.102:8888/api/private/v1'
 // 'http://119.23.53.78:8888/api/private/v1'
 //'http://127.0.0.1:8888/api/private/v1/'
 
@@ -29,6 +30,22 @@ axios.interceptors.request.use(config => {
 })
 
 Vue.config.productionTip = false
+
+// 注册个全局拦截器
+Vue.filter('dateFormat',function(oldValue) {
+  let dt = new Date(oldValue);
+
+  let y = dt.getFullYear();
+  let m = (dt.getMonth() + 1 + '').padStart(2,'0');
+  let d = (dt.getDate() + '').padStart(2, '0');
+
+  let hh = (dt.getHours() + '').padStart(2, '0');
+  let mm = (dt.getMinutes() + '').padStart(2, '0');
+  let ss = (dt.getSeconds() + '').padStart(2, '0');
+
+  return `${y}-${m}-${d} ${hh}:${mm}:${ss}`
+})
+
 
 Vue.use(ElementUI)
 Vue.use(Vuex)
