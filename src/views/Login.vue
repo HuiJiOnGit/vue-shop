@@ -47,17 +47,19 @@ export default {
             this.$refs[refname].resetFields();
         },
         login(refname){
-          this.$refs[refname].validate(async valid => {
+          this.$refs[refname].validate(valid => {
             if (!valid) {
               return;
             }
-            console.log(this.formdata);
-            let {data: res} = await this.$http.post("login",this.formdata);
-            // console.log(res);
-            if (res.meta.status !== 200) return this.$message.error('login error');
-            this.$message.success('login success');
-            window.sessionStorage.setItem('token',res.data.token);
-            this.$router.push('/home');
+            // let {data: res} = await this.$http.post("login",this.formdata);
+            // if (res.meta.status !== 200) return this.$message.error('login error');
+            // this.$message.success('login success');
+            // window.sessionStorage.setItem('token',res.data.token);
+            // this.$router.push('/home');
+            console.log(this.$api);
+            console.log(this.$api.login);
+            // this.$api.login.userLogin(this.formdata);
+            // this.$api.login.test();
           })
         },
         //input获得焦点事件
