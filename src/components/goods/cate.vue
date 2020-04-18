@@ -195,18 +195,23 @@ export default {
   },
   methods: {
     // 获取商品分类数据
-    async getCateList() {
-      let { data: res } = await this.$http.get("categories", {
-        params: this.querInfo
-      })
+    getCateList() {
+      // let { data: res } = await this.$http.get("categories", {
+      //   params: this.querInfo
+      // })
 
-      if (res.meta.status !== 200) {
+      // if (res.meta.status !== 200) {
+      //   return this.$message.error("获取商品分类失败")
+      // }
+      // // console.log(res.data)
+      // this.catelist = res.data.result
+      // this.total = res.data.total
+      this.$api.cate.GetCateList(this.querInfo).then(res => {
+        this.catelist = res.data.result
+        this.total = res.data.total
+      }).catch(err => {
         return this.$message.error("获取商品分类失败")
-      }
-      // console.log(res.data)
-      this.catelist = res.data.result
-
-      this.total = res.data.total
+      })
     },
     // pagesize改变事件
     handleSizeChange(newSize) {
@@ -224,16 +229,24 @@ export default {
       this.addDialogVisible = true
     },
     // 获取父级分类的数据
-    async getParentCateList() {
-      let { data: res } = await this.$http.get("categories", {
-        params: { type: 2 }
-      })
+    getParentCateList() {
+      // let { data: res } = await this.$http.get("categories", {
+      //   params: { type: 2 }
+      // })
 
-      if (res.meta.status !== 200) {
+      // if (res.meta.status !== 200) {
+      //   return this.$message.error("获取分类数据失败")
+      // }
+      // // console.log(res.data)
+      // this.parentCateList = res.data
+
+      this.$api.cate.GetCateList({
+        params: { type: 2 }
+      }).then(res => {
+        this.parentCateList = res.data
+      }).catch(err => {
         return this.$message.error("获取分类数据失败")
-      }
-      // console.log(res.data)
-      this.parentCateList = res.data
+      })
     },
     // 下拉框选择事件
     handleChange() {
@@ -253,18 +266,26 @@ export default {
     // 添加分类提交
     addCateDialogSubmit() {
       this.$refs.addCateFormRef.validate(async vaild => {
-        let { data: res } = await this.$http.post(
-          "categories",
-          this.addCateForm
-        )
+        // let { data: res } = await this.$http.post(
+        //   "categories",
+        //   this.addCateForm
+        // )
 
-        if (res.meta.status !== 201) {
+        // if (res.meta.status !== 201) {
+        //   return this.$message.error("添加分类失败")
+        // }
+
+        // this.$message.success("添加分类成功")
+        // this.getCateList()
+        // this.addDialogVisible = false
+
+        await this.$api.cate.AddCate(this.addCateForm).then(res => {
+          this.$message.success("添加分类成功")
+          this.getCateList()
+          this.addDialogVisible = false
+        }).catch(err => {
           return this.$message.error("添加分类失败")
-        }
-
-        this.$message.success("添加分类成功")
-        this.getCateList()
-        this.addDialogVisible = false
+        })
       })
     },
     // 关闭添加分类对话框事件
@@ -275,33 +296,50 @@ export default {
       this.addCateForm.cat_level = 0
     },
     // 打开编辑分类对话框
-    async OpenEditDialog(id) {
-      let { data: res } = await this.$http.get("categories/" + id)
+    OpenEditDialog(id) {
+      // let { data: res } = await this.$http.get("categories/" + id)
 
-      if (res.meta.status !== 200) {
+      // if (res.meta.status !== 200) {
+      //   return this.$message.error("获取分类失败")
+      // }
+
+      // this.editCateForm = res.data
+
+      // this.editDialogVisible = true
+
+      this.$api.cate.GetCateInfo(id).then(res => {
+        this.editCateForm = res.data
+        this.editDialogVisible = true
+      }).catch(err => {
         return this.$message.error("获取分类失败")
-      }
-
-      this.editCateForm = res.data
-
-      this.editDialogVisible = true
+      })
     },
     // 编辑分类提交
     editCateFormSubmit() {
       this.$refs.editCateFormRef.validate(async vaild => {
-        let {
-          data: res
-        } = await this.$http.put(`categories/${this.editCateForm.cat_id}`, {
+        // let {
+        //   data: res
+        // } = await this.$http.put(`categories/${this.editCateForm.cat_id}`, {
+        //   cat_name: this.editCateForm.cat_name
+        // })
+
+        // if (res.meta.status !== 200) {
+        //   return this.$message.error("编辑分类失败")
+        // }
+
+        // this.$message.success("编辑分类成功")
+        // this.getCateList()
+        // this.editDialogVisible = false
+
+        await this.$api.cate.EditCate(this.editCateForm.cat_id,{
           cat_name: this.editCateForm.cat_name
-        })
-
-        if (res.meta.status !== 200) {
+        }).then(res => {
+          this.$message.success("编辑分类成功")
+          this.getCateList()
+          this.editDialogVisible = false
+        }).catch(err => {
           return this.$message.error("编辑分类失败")
-        }
-
-        this.$message.success("编辑分类成功")
-        this.getCateList()
-        this.editDialogVisible = false
+        })
       })
     },
     // 关闭编辑分类对话框事件
@@ -319,16 +357,26 @@ export default {
       })
         .then(async result => {
           if (result === "confirm") {
-            const { data: res } = await this.$http.delete("categories/" + id)
+            // const { data: res } = await this.$http.delete("categories/" + id)
 
-            if (res.meta.status !== 200) {
-              return this.$message.error("删除分类失败！")
-            }
-            this.$message({
-              type: "success",
-              message: "删除成功!"
+            // if (res.meta.status !== 200) {
+            //   return this.$message.error("删除分类失败！")
+            // }
+            // this.$message({
+            //   type: "success",
+            //   message: "删除成功!"
+            // })
+            // this.getCateList()
+
+            await this.$api.cate.DelCate(id).then(res => {
+              this.$message({
+                type: "success",
+                message: "删除成功!"
+              })
+              this.getCateList()
+            }).catch(err => {
+              this.$message.error("删除分类失败！")
             })
-            this.getCateList()
           }
         })
         .catch(result => {

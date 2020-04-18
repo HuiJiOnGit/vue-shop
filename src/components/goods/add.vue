@@ -115,14 +115,17 @@ export default {
   },
   methods: {
     // 获取商品分类数据
-    async getCateList() {
-      let { data: res } = await this.$http.get("categories")
-
-      if (res.meta.status !== 200) {
+    getCateList() {
+      // let { data: res } = await this.$http.get("categories")
+      // if (res.meta.status !== 200) {
+      //   return this.$message.error("获取商品分类失败")
+      // }
+      // this.catelist = res.data
+      this.$api.cate.GetCateList().then(res => {
+        this.catelist = res.data
+      }).catch(err => {
         return this.$message.error("获取商品分类失败")
-      }
-    //   console.log(res.data)
-      this.catelist = res.data
+      })
     },
     // 级联选择框change事件
     handleChange() {

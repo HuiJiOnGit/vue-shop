@@ -34,13 +34,18 @@
         },
         methods: {
             // 获取权限列表
-            async getRightsList() {
-                let {data: res} = await this.$http.get('rights/list');
+            getRightsList() {
+                // let {data: res} = await this.$http.get('rights/list');
 
-                if (res.meta.status !== 200) {
-                    return this.$message.error('获取权限列表失败！');                    
-                }
-                this.rightsList = res.data;
+                // if (res.meta.status !== 200) {
+                //     return this.$message.error('获取权限列表失败！');                    
+                // }
+                // this.rightsList = res.data;
+                this.$api.rights.GetRightsList().then(res => {
+                    this.rightsList = res.data;                    
+                }).catch(err => {
+                    this.$message.error('获取权限列表失败！')
+                })
             }
         },
         created(){

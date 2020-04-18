@@ -183,16 +183,21 @@
     },
     methods: {
       // 获取商品分类数据
-      async getCateList() {
-        let {
-          data: res
-        } = await this.$http.get("categories")
+      getCateList() {
+        // let {
+        //   data: res
+        // } = await this.$http.get("categories")
 
-        if (res.meta.status !== 200) {
-          return this.$message.error("获取商品分类失败")
-        }
-        // console.log(res.data)
-        this.catelist = res.data
+        // if (res.meta.status !== 200) {
+        //   return this.$message.error("获取商品分类失败")
+        // }
+        // // console.log(res.data)
+        // this.catelist = res.data
+        this.$api.cate.GetCateList().then(res => {
+          this.catelist = res.data
+        }).catch(err => {
+          this.$message.error("获取商品分类失败")
+        })
       },
       // 级联选择框change事件
       handleChange() {
@@ -203,7 +208,7 @@
         this.getParamsData()
       },
       // 获取参数列表数据
-      async getParamsData() {
+      getParamsData() {
         if (this.cateSelectValue.length !== 3) {
           this.cateSelectValue = []
           this.manyTableData = []
@@ -211,32 +216,47 @@
           return
         }
 
-        let {
-          data: res
-        } = await this.$http.get(
-          `categories/${this.cateId}/attributes`, {
-            params: {
-              sel: this.activeName
-            }
+        // let {
+        //   data: res
+        // } = await this.$http.get(
+        //   `categories/${this.cateId}/attributes`, {
+        //     params: {
+        //       sel: this.activeName
+        //     }
+        //   }
+        // )
+        // if (res.meta.status !== 200) {
+        //   return this.$message.error("获取参数列表失败")
+        // }
+        // //分割数组
+        // res.data.forEach(element => {
+        //   element.attr_vals = element.attr_vals ? element.attr_vals.split(' ') : [];
+        //   element.inputValue = '';
+        //   element.inputVisible = false
+        // });
+        // if (this.activeName === "many") {
+        //   this.manyTableData = res.data
+        // } else {
+        //   this.onlyTableData = res.data
+        // }
+
+        this.$api.cate.GetCateAttrList(this.cateId,{
+          sel: this.activeName
+        }).then(res => {
+          //分割数组
+          res.data.forEach(element => {
+            element.attr_vals = element.attr_vals ? element.attr_vals.split(' ') : [];
+            element.inputValue = '';
+            element.inputVisible = false
+          });
+          if (this.activeName === "many") {
+            this.manyTableData = res.data
+          } else {
+            this.onlyTableData = res.data
           }
-        )
-
-        if (res.meta.status !== 200) {
-          return this.$message.error("获取参数列表失败")
-        }
-
-        //分割数组
-        res.data.forEach(element => {
-          element.attr_vals = element.attr_vals ? element.attr_vals.split(' ') : [];
-          element.inputValue = '';
-          element.inputVisible = false
-        });
-
-        if (this.activeName === "many") {
-          this.manyTableData = res.data
-        } else {
-          this.onlyTableData = res.data
-        }
+        }).catch(err => {
+          this.$message.error("获取参数列表失败")
+        })
       },
       // 关闭添加对话框事件
       AddDialogClose() {
@@ -246,31 +266,48 @@
       AddParams() {
         this.$refs.AddRef.validate(async valid => {
           if (!valid) return
-          let {
-            data: res
-          } = await this.$http.post(`categories/${this.cateId}/attributes`, {
+          // let {
+          //   data: res
+          // } = await this.$http.post(`categories/${this.cateId}/attributes`, {
+          //   attr_name: this.AddForm.attr_name,
+          //   attr_sel: this.activeName
+          // })
+          // if (res.meta.status !== 201) {
+          //   return this.$message.error('添加参数失败')
+          // }
+
+          // this.$message.success('添加参数成功')
+          // this.addParamsDialogVisible = false;
+          // this.getParamsData();
+          await this.$api.cate.AddCateAttr(this.cateId,{
             attr_name: this.AddForm.attr_name,
             attr_sel: this.activeName
+          }).then(res => {
+            this.$message.success('添加参数成功')
+            this.addParamsDialogVisible = false;
+            this.getParamsData();
+          }).catch(err => {
+            this.$message.error('添加参数失败')
           })
-          if (res.meta.status !== 201) {
-            return this.$message.error('添加参数失败')
-          }
-
-          this.$message.success('添加参数成功')
-          this.addParamsDialogVisible = false;
-          this.getParamsData();
         })
       },
       // 打开编辑对话框
-      async OpenEditDialog(id) {
-        let {
-          data: res
-        } = await this.$http.get(`categories/${this.cateId}/attributes/${id}`);
-        if (res.meta.status !== 200) {
-          return this.$message.error('查询信息失败')
-        }
-        this.editForm = res.data
-        this.editParamsDialogVisible = true
+      OpenEditDialog(id) {
+        // let {
+        //   data: res
+        // } = await this.$http.get(`categories/${this.cateId}/attributes/${id}`);
+        // if (res.meta.status !== 200) {
+        //   return this.$message.error('查询信息失败')
+        // }
+        // this.editForm = res.data
+        // this.editParamsDialogVisible = true
+
+        this.$api.cate.GetCateAttrInfo(this.cateId,id).then(res => {
+          this.editForm = res.data
+          this.editParamsDialogVisible = true
+        }).catch(err => {
+          this.$message.error('查询信息失败')
+        })
       },
       // 编辑对话框关闭事件
       editDialogClose() {
@@ -280,20 +317,30 @@
       editParams() {
         this.$refs.editRef.validate(async valid => {
           if (!valid) return
-          let {
-            data: res
-          } = await this.$http.put(`categories/${this.cateId}/attributes/${this.editForm.attr_id}`, {
+          // let {
+          //   data: res
+          // } = await this.$http.put(`categories/${this.cateId}/attributes/${this.editForm.attr_id}`, {
+          //   attr_name: this.editForm.attr_name,
+          //   attr_sel: this.activeName
+          // })
+          // if (res.meta.status !== 200) {
+          //   return this.$message.error('修改参数失败');
+          // }
+          // this.$message.success('修改参数成功')
+          // this.getParamsData();
+          // this.editParamsDialogVisible = false;
+
+          await this.$api.cate.EditCateAttr(this.cateId,this.editForm.attr_id,{
             attr_name: this.editForm.attr_name,
             attr_sel: this.activeName
+          }).then(res => {
+            this.$message.success('修改参数成功')
+            this.getParamsData();
+            this.editParamsDialogVisible = false;
+          }).catch(err => {
+            this.$message.error('修改参数失败')
           })
 
-          if (res.meta.status !== 200) {
-            return this.$message.error('修改参数失败');
-          }
-
-          this.$message.success('修改参数成功')
-          this.getParamsData();
-          this.editParamsDialogVisible = false;
         })
       },
       // 删除参数
@@ -305,18 +352,27 @@
           })
           .then(async result => {
             if (result === "confirm") {
-              const {
-                data: res
-              } = await this.$http.delete(`categories/${this.cateId}/attributes/${id}`)
+              // const {
+              //   data: res
+              // } = await this.$http.delete(`categories/${this.cateId}/attributes/${id}`)
 
-              if (res.meta.status !== 200) {
-                return this.$message.error("删除参数失败！")
-              }
-              this.$message({
-                type: "success",
-                message: "删除成功!"
+              // if (res.meta.status !== 200) {
+              //   return this.$message.error("删除参数失败！")
+              // }
+              // this.$message({
+              //   type: "success",
+              //   message: "删除成功!"
+              // })
+              // this.getParamsData()
+              await this.$api.cate.DelCateAttr(this.cateId,id).then(res => {
+                this.$message({
+                  type: "success",
+                  message: "删除成功!"
+                })
+                this.getParamsData()
+              }).catch(err => {
+                this.$message.error("删除参数失败！")
               })
-              this.getParamsData()
             }
           })
           .catch(result => {
@@ -329,7 +385,7 @@
           })
       },
       // el-tag enter或失去焦点事件
-      async handleInputConfirm(row) {
+      handleInputConfirm(row) {
         if (row.inputValue.trim().length === 0) {
           row.inputValue = ''
           row.inputVisible = false;
@@ -355,23 +411,32 @@
         row.attr_vals.splice(i,1);
         this.saveAttrVals(row);
       },
-      async saveAttrVals(row) {
+      // 保存
+      saveAttrVals(row) {
         //发起请求
-        let {
-          data: res
-        } = await this.$http.put(`categories/${this.cateId}/attributes/${row.attr_id}`, {
+        // let {
+        //   data: res
+        // } = await this.$http.put(`categories/${this.cateId}/attributes/${row.attr_id}`, {
+        //   attr_name: row.attr_name,
+        //   attr_sel: row.attr_sel,
+        //   attr_vals: row.attr_vals.join(' ')
+        // })
+        // if (res.meta.status !== 200) {
+        //   row.attr_vals.splice(i,1);
+        //   return this.$message.error('修改参数项失败');
+        // }
+        // this.$message.success('修改参数项成功');
+
+        this.$api.cate.EditCateAttr(this.cateId,row.attr_id,{
           attr_name: row.attr_name,
           attr_sel: row.attr_sel,
           attr_vals: row.attr_vals.join(' ')
-        })
-
-        if (res.meta.status !== 200) {
+        }).then(res => {
+          this.$message.success('修改参数项成功');
+        }).catch(err => {
           row.attr_vals.splice(i,1);
           return this.$message.error('修改参数项失败');
-        }
-
-
-        this.$message.success('修改参数项成功');
+        })
       }
     },
     created() {

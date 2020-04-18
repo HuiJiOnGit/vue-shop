@@ -110,15 +110,20 @@
         },
         methods: {
             // 加载列表
-            async getRolesList() {
-                const {
-                    data: res
-                } = await this.$http.get('roles');
-                //console.log(res);
-                if (res.meta.status !== 200) {
-                    return this.$message.error('获取角色列表失败！');
-                }
-                this.rolelist = res.data;
+            getRolesList() {
+                // const {
+                //     data: res
+                // } = await this.$http.get('roles');
+                // //console.log(res);
+                // if (res.meta.status !== 200) {
+                //     return this.$message.error('获取角色列表失败！');
+                // }
+                // this.rolelist = res.data;
+                this.$api.roles.GetRolesList().then(res => {
+                    this.rolelist = res.data;
+                }).catch(err => {
+                    this.$message.error('获取角色列表失败！');
+                })
             },
             // 打开添加角色按钮事件
             AddRole() {
@@ -136,20 +141,28 @@
                     type: 'warning'
                 }).then(async (result) => {
                     if (result === 'confirm') {
-                        const {
-                            data: res
-                        } = await this.$http.delete('roles/' + id)
+                        // const {
+                        //     data: res
+                        // } = await this.$http.delete('roles/' + id)
 
-                        if (res.meta.status !== 200) {
-                            return this.$message.error('删除角色失败！')
-                        } else {
+                        // if (res.meta.status !== 200) {
+                        //     return this.$message.error('删除角色失败！')
+                        // } else {
+                        //     this.$message({
+                        //         type: 'success',
+                        //         message: '删除成功!'
+                        //     });
+                        // }
+                        // this.getRolesList();
+                        await this.$api.roles.DelRole(id).then(res => {
                             this.$message({
                                 type: 'success',
                                 message: '删除成功!'
                             });
-                        }
-
-                        this.getRolesList();
+                            this.getRolesList();
+                        }).catch(err => {
+                            this.$message.error('删除角色失败！')
+                        })
                     }
                 }).catch((result) => {
                     if (result === 'cancel') {
@@ -168,18 +181,27 @@
                     type: 'warning'
                 }).then(async (result) => {
                     if (result === 'confirm') {
-                        const {
-                            data: res
-                        } = await this.$http.delete(`roles/${role.id}/rights/${id}`);
-                        if (res.meta.status !== 200) {
-                            return this.$message.error('删除权限失败');
-                        }
-                        //console.debug(res);
-                        this.$message({
-                            type: 'success',
-                            message: '删除成功!'
-                        });
-                        role.children = res.data;
+                        // const {
+                        //     data: res
+                        // } = await this.$http.delete(`roles/${role.id}/rights/${id}`);
+                        // if (res.meta.status !== 200) {
+                        //     return this.$message.error('删除权限失败');
+                        // }
+                        // //console.debug(res);
+                        // this.$message({
+                        //     type: 'success',
+                        //     message: '删除成功!'
+                        // });
+                        // role.children = res.data;
+                        await this.$api.roles.DelRoleRight(role.id,id).then(res => {
+                            this.$message({
+                                type: 'success',
+                                message: '删除成功!'
+                            });
+                            role.children = res.data;
+                        }).catch(err => {
+                            this.$message.error('删除权限失败')
+                        })
                     }
                 }).catch((err) => {
                     if (err === 'cancel') {
@@ -193,18 +215,24 @@
             // 打开分配权限
             async showRightDialog(role) {
                 // 获取所有权限的数据
-                const {data: res} = await this.$http.get('rights/tree')
+                // const {data: res} = await this.$http.get('rights/tree')
 
-                if (res.meta.status !== 200) {
-                    return this.$message.error('获取权限失败');
-                }
-                this.rightsList = res.data;
+                // if (res.meta.status !== 200) {
+                //     return this.$message.error('获取权限失败');
+                // }
+                // this.rightsList = res.data;
+                // this.roleId = role.id;
+                // this.getLeafKeys(role,this.defKeys);
+                // this.rightDialogVisible = true;
 
-                this.roleId = role.id;
-
-                this.getLeafKeys(role,this.defKeys);
-
-                this.rightDialogVisible = true;
+                this.$api.rights.GetRightsTree().then(res => {
+                    this.rightsList = res.data;
+                    this.roleId = role.id;
+                    this.getLeafKeys(role,this.defKeys);
+                    this.rightDialogVisible = true;
+                }).catch(err => {
+                    this.$message.error('获取权限失败');
+                })
             },
             // 通过递归的形式，获取角色下所有的三级权限的id，并保存到defKeys中
             getLeafKeys(node,arr){
@@ -222,7 +250,7 @@
                 this.rightDialogVisible = false;
             },
             // 点击为角色分配权限
-            async allotRights(){
+            allotRights(){
                 let keys = [
                     ...this.$refs.treeRef.getCheckedKeys(),
                     ...this.$refs.treeRef.getHalfCheckedKeys()
@@ -230,13 +258,19 @@
 
                 let idStr = keys.join(',')
 
-                let {data: res} = await this.$http.post(`roles/${this.roleId}/rights`,{rids: idStr});
+                // let {data: res} = await this.$http.post(`roles/${this.roleId}/rights`,{rids: idStr});
 
-                if (res.meta.status !== 200) {
-                    return this.$message.error('分配权限失败');
-                }else if(res.meta.status === 200){
+                // if (res.meta.status !== 200) {
+                //     return this.$message.error('分配权限失败');
+                // }else if(res.meta.status === 200){
+                //     this.$message.success('分配权限成功');
+                // }
+
+                this.$api.roles.AssignRoleRight(this.roleId,{rids: idStr}).then(res => {
                     this.$message.success('分配权限成功');
-                }                
+                }).catch(err => {
+                    this.$message.error('分配权限失败');
+                })
 
                 this.getRolesList();
 

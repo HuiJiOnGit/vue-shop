@@ -110,7 +110,6 @@
       title="提示" 
       :visible.sync="setRoleVisible" 
       width="30%" 
-      :before-close="handleClose"
       @close="roleDialogClose">
         <p>当前用户名：{{userInfo.username}}</p>
         <p>当前用户角色：{{userInfo.role_name}}</p>
@@ -169,16 +168,22 @@ export default {
   },
   methods: {
     // 获取用户列表
-    async getUsrList() {
-      let { data: res } = await this.$http.get("users", {
-        params: this.queryInfo
+    getUsrList() {
+      // let { data: res } = await this.$http.get("users", {
+      //   params: this.queryInfo
+      // })
+      // if (res.meta.status !== 200) {
+      //   return this.$message.error("获取用户列表失败")
+      // }   
+      // this.userlist = res.data.users
+      // this.total = res.data.total   
+      this.$api.user.GetUserList(this.queryInfo).then(res => {
+        this.$message.success(res.meta.msg)
+        this.userlist = res.data.users
+        this.total = res.data.total
+      }).catch(err => {
+        this.$message.error(err.meta.msg)
       })
-      if (res.meta.status !== 200) {
-        return this.$message.error("获取用户列表失败")
-      }
-      this.userlist = res.data.users
-      this.total = res.data.total
-      // console.log(res);
     },
     // pagesize改变事件
     handleSizeChange(val) {
@@ -193,16 +198,23 @@ export default {
       this.getUsrList()
     },
     // 监听 switch开关状态
-    async userStateChanged(userinfo) {
+    userStateChanged(userinfo) {
       // console.log(userinfo);
-      let { data: res } = await this.$http.put(
-        `users/${userinfo.id}/state/${userinfo.mg_state}`
-      )
-      if (res.meta.status !== 200) {
+      // let { data: res } = await this.$http.put(
+      //   `users/${userinfo.id}/state/${userinfo.mg_state}`
+      // )
+      // if (res.meta.status !== 200) {
+      //   userinfo.mg_state = !userinfo.mg_state
+      //   return this.$message.error("更新用户状态失败")
+      // }
+      // this.$message.success("更新用户状态成功")
+
+      this.$api.user.ChangeUserStatus(userinfo.id,userinfo.mg_state).then(res => {
+        this.$message.success("更新用户状态成功")
+      }).catch(err => {
         userinfo.mg_state = !userinfo.mg_state
-        return this.$message.error("更新用户状态失败")
-      }
-      this.$message.success("更新用户状态成功")
+        this.$message.error("更新用户状态失败")
+      })
     },
     // 打开添加用户按钮事件
     AddUser() {
@@ -221,16 +233,26 @@ export default {
       })
         .then(async result => {
           if (result === "confirm") {
-            const { data: res } = await this.$http.delete("users/" + id)
+            // const { data: res } = await this.$http.delete("users/" + id)
 
-            if (res.meta.status !== 200) {
-              return this.$message.error("删除用户失败！")
-            }
-            this.$message({
+            // if (res.meta.status !== 200) {
+            //   return this.$message.error("删除用户失败！")
+            // }
+            // this.$message({
+            //   type: "success",
+            //   message: "删除成功!"
+            // })
+            // this.getUsrList()
+            await this.$api.user.DelUser(id).then(res => {
+              this.$message({
               type: "success",
               message: "删除成功!"
+              })
+              this.getUsrList()
+            }).catch(err => {
+              this.$message.error(err.meta.msg);
             })
-            this.getUsrList()
+
           }
         })
         .catch(result => {
@@ -243,37 +265,49 @@ export default {
         })
     },
     // 打开设置角色对话框
-    async setRole(userInfo) {
+    setRole(userInfo) {
       this.userInfo = userInfo
-
-      let { data: res } = await this.$http.get(`roles`)
-
-      if (res.meta.status !== 200) {
-        return this.$message.error("获取角色列表失败")
-      }
-
-      this.rolesList = res.data
-
-      this.setRoleVisible = true
+      // let { data: res } = await this.$http.get(`roles`)
+      // if (res.meta.status !== 200) {
+      //   return this.$message.error("获取角色列表失败")
+      // }
+      // this.rolesList = res.data
+      // this.setRoleVisible = true
+      this.$api.roles.GetRolesList().then(res => {
+        this.rolesList = res.data
+        this.setRoleVisible = true
+      }).catch(err => {
+        this.$message.error("获取角色列表失败")
+      })
     },
     // 保存设置权限
-    async saveRoleInfo(){
+    saveRoleInfo(){
       if (!this.selectRoleId) {
         this.setRoleVisible = false;
       }
 
-      let {data: res} = await this.$http.put(`users/${this.userInfo.id}/role`,{
-        rid: this.selectRoleId
-      });
+      // let {data: res} = await this.$http.put(`users/${this.userInfo.id}/role`,{
+      //   rid: this.selectRoleId
+      // });
 
-      if (res.meta.status !== 200) {
-        return this.$message.error('更新用户角色失败');
-      }
+      // if (res.meta.status !== 200) {
+      //   return this.$message.error('更新用户角色失败');
+      // }
 
-      this.$message.success('更新用户角色成功');
+      // this.$message.success('更新用户角色成功');
+      // this.getUsrList();
+      // this.setRoleVisible = false;
+      // this.selectRoleId = null;
+
+      this.$api.user.AssignRoles(this.userInfo.id,{rid: this.selectRoleId}).then(res => {
+        this.$message.success('更新用户角色成功');
+      }).catch(err => {
+        this.$message.error('更新用户角色失败');
+      })
       this.getUsrList();
       this.setRoleVisible = false;
       this.selectRoleId = null;
+
     },
     // 分配角色对话框关闭事件
     roleDialogClose(){

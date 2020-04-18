@@ -83,11 +83,16 @@
         this.$router.push("/login")
       },
       async getMenuList() {
-        const { data: res } = await this.$http.get("menus")
-        if (res.meta.status !== 200) {
-          return this.$message.error(res.meta.msg)
-        }
-        this.menulist = res.data
+        // const { data: res } = await this.$http.get("menus")
+        // if (res.meta.status !== 200) {
+        //   return this.$message.error(res.meta.msg)
+        // }
+        // this.menulist = res.data
+        this.$api.rights.getMeuns().then(res => {
+          this.menulist = res.data;
+        }).catch(err => {
+          this.$message.error(res.meta.msg)
+        })
       },
       toggleCollapse() {
         this.isCollapse = !this.isCollapse;

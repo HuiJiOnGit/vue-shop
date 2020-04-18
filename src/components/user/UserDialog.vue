@@ -83,20 +83,20 @@
                             message: '请输入email',
                             trigger: 'blur'
                         },
-                        {
-                            validator: checkeamil,
-                            trigger: 'blur'
-                        }
+                        // {
+                        //     validator: checkeamil,
+                        //     trigger: 'blur'
+                        // }
                     ],
                     mobile: [{
                             required: true,
                             message: '请输入mobile',
                             trigger: 'blur'
                         },
-                        {
-                            validator: checkmobile,
-                            trigger: 'blur'
-                        }
+                        // {
+                        //     validator: checkmobile,
+                        //     trigger: 'blur'
+                        // }
                     ]
                 },
             }
@@ -120,23 +120,28 @@
                 return this.$store.state.user.dialogFormPasswordItemVisible
             },
             // 用户名
-            getUserDisabled(){
+            getUserDisabled() {
                 return this.$store.state.user.UserDisabled
             }
         },
         methods: {
             // 打开对话框事件
-            async OpenDialog() {
+            OpenDialog() {
                 let id = this.$store.state.user.userId;
                 if (id !== null) {
-                    let {
-                        data: res
-                    } = await this.$http.get('users/' + id);
-                    if (res.meta.status !== 200) {
-                        return this.$message.error('查询用户信息失败！')
-                    }
+                    // let {
+                    //     data: res
+                    // } = await this.$http.get('users/' + id);
+                    // if (res.meta.status !== 200) {
+                    //     return this.$message.error('查询用户信息失败！')
+                    // }
+                    // this.userform = res.data
 
-                    this.userform = res.data
+                    this.$api.user.GetUserInfo(id).then(res => {
+                        this.userform = res.data
+                    }).catch(err => {
+                        return this.$message.error('查询用户信息失败！')
+                    })
                 }
             },
             // 对话框关闭事件
@@ -146,37 +151,55 @@
             },
             // 对话框确定事件
             UserCommit() {
+                console.log(this.userform);
                 this.$refs.FormRef.validate(async valid => {
+                    console.log(valid)
                     if (!valid) {
-                        return
+                        return false;
                     }
+
                     let id = this.$store.state.user.userId;
                     // 这里区分是添加还是修改
                     if (this.$store.state.user.userId === null) {
-                        let {
-                            data: res
-                        } = await this.$http.post('users', this.userform);
+                        // let {
+                        //     data: res
+                        // } = await this.$http.post('users', this.userform);
 
-                        if (res.meta.status !== 201) {
-                            this.$message.error('添加用户失败');
-                            return
-                        }
-                        this.$message.success('添加用户成功');
+                        // if (res.meta.status !== 201) {
+                        //     this.$message.error('添加用户失败');
+                        //     return
+                        // }
+                        // this.$message.success('添加用户成功');
+                        console.log(this.userform);
+                        await this.$api.user.AddUser(this.userform).then(res => {
+                            this.$message.success('添加用户成功');
+                        }).catch(err => {
+                            this.$message.error(err.meta.msg);
+                        })
+
                     } else {
                         // 发起修改用户信息的数据请求
-                        let {
-                            data: res
-                        } = await this.$http.put(
-                            'users/' + id, {
-                                email: this.userform.email,
-                                mobile: this.userform.mobile
-                            }
-                        )
-                        if (res.meta.status !== 200) {
-                            return this.$message.error('更新用户信息失败！')
-                        }
-                        // 提示修改成功
-                        this.$message.success('更新用户信息成功！')
+                        // let {
+                        //     data: res
+                        // } = await this.$http.put(
+                        //     'users/' + id, {
+                        //         email: this.userform.email,
+                        //         mobile: this.userform.mobile
+                        //     }
+                        // )
+                        // if (res.meta.status !== 200) {
+                        //     return this.$message.error('更新用户信息失败！')
+                        // }
+                        // // 提示修改成功
+                        // this.$message.success('更新用户信息成功！')
+                        await this.$api.user.EditUser(id, {
+                            email: this.userform.email,
+                            mobile: this.userform.mobile
+                        }).then(res => {
+                            this.$message.success('更新用户信息成功！');
+                        }).catch(err => {
+                            this.$message.error('更新用户信息失败！');
+                        })
                     }
                     // 关闭窗口
                     this.$store.commit('CloseUserDialog', false);

@@ -1,5 +1,6 @@
 // 在http.js中引入axios
 import axios from 'axios'; // 引入axios
+import router from '../router';
 //import QS from 'qs'; // 引入qs模块，用来序列化post类型的数据，后面会提到
 // vant的toast提示框组件，大家可根据自己的ui组件更改。
 import {
@@ -21,17 +22,16 @@ axios.defaults.baseURL可以设置axios的默认请求地址就不多说了。
 //     axios.defaults.baseURL = 'https://www.production.com';
 // }
 
-// 创建axios实例
-var instance = axios.create({
-    baseURL: 'http://47.115.124.102:8888/api/private/v1',
-    timeout: 10000,
-});
+// 设置baseurl
+axios.defaults.baseURL = 'http://47.115.124.102:8888/api/private/v1'
 // 'http://47.115.124.102:8888/api/private/v1'
 // 'http://119.23.53.78:8888/api/private/v1'
 //'http://127.0.0.1:8888/api/private/v1/'
 
+// 请求超时时间
+axios.defaults.timeout = 10000;
 // 设置post请求头
-instance.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
+axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
 
 /**
  * 
@@ -99,7 +99,7 @@ const errorHandle = (status, other) => {
 // import store from '@/store/index';
 
 // 请求拦截器
-instance.interceptors.request.use(
+axios.interceptors.request.use(
     config => {
         // 每次发送请求之前判断vuex中是否存在token        
         // 如果存在，则统一在http请求的header都加上token，这样后台根据token判断你的登录情况
@@ -109,23 +109,25 @@ instance.interceptors.request.use(
         // return config;
 
         // (可以使用vuex，但是这里我直接在sessionStore里面判断有没有token就行了)
+        console.log(config);
         config.headers.Authorization = window.sessionStorage.getItem('token');
         return config;
 
     },
     error => {
         return Promise.error(error);
-    })
+})
 
 // 响应拦截器
-instance.interceptors.response.use(
+axios.interceptors.response.use(
     response => {
         // 如果返回的状态码为200，说明接口请求成功，可以正常拿到数据     
         // 否则的话抛出错误
-        if (response.meta.status === 200 || response.meta.status === 201) {
-            return Promise.resolve(response);
+        console.log(response);
+        if (response.data.meta.status === 200 || response.data.meta.status === 201) {
+            return Promise.resolve(response.data);
         } else {
-            return Promise.reject(response);
+            return Promise.reject(response.data);
         }
     },
     // 服务器状态码不是2开头的的情况
@@ -137,5 +139,73 @@ instance.interceptors.response.use(
         return Promise.reject(error.response);
     });
 
+/** 
+ * get方法，对应get请求 
+ * @param {String} url [请求的url地址] 
+ * @param {Object} params [请求时携带的参数] 
+ */
+export function get(url, params = {}){  
+    return new Promise((resolve, reject) =>{        
+        axios.get(url, {            
+            params: params        
+        })        
+        .then(res => {            
+            resolve(res);        
+        })        
+        .catch(err => {            
+            reject(err)        
+        })    
+    });
+}
 
-export default { instance }
+/** 
+ * post方法，对应post请求 
+ * @param {String} url [请求的url地址] 
+ * @param {Object} data [请求时携带的参数] 
+ */
+export function post(url, data = {}) {    
+    return new Promise((resolve, reject) => {         
+        axios.post(url, data)        
+        .then(res => {
+            console.log(res);
+            resolve(res);        
+        })        
+        .catch(err => {            
+            reject(err)        
+        })    
+    });
+    // return axios.post(url, data);
+}
+
+/**
+ * put方法，对应put请求
+ * @param {String} url [请求的url]
+ * @param {object} data [请求参数]
+ */
+export function put(url,data = {}) {
+	return new Promise((resolve,reject) => {
+		axios.put(url,data)
+		.then(res => {
+			resolve(res);
+		})
+		.catch(err => {
+			reject(err)
+		})
+	})
+}
+
+/**
+ * put方法，对应delete请求
+ * @param {String} url [请求的url]
+ */
+export function del(url) {
+	return new Promise((resolve,reject) => {
+		axios.delete(url)
+		.then(res => {
+			resolve(res);
+		})
+		.catch(err => {
+			reject(err)
+		})
+	})
+}

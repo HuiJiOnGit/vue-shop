@@ -59,17 +59,22 @@
         },
         methods: {
             // 打开对话框事件
-            async OpenDialog() {
+            OpenDialog() {
                 let id = this.$store.state.role.roleId;
                 if (id !== null) {
-                    let {
-                        data: res
-                    } = await this.$http.get('roles/' + id);
-                    if (res.meta.status !== 200) {
-                        return this.$message.error('查询角色信息失败！')
-                    }
+                    // let {
+                    //     data: res
+                    // } = await this.$http.get('roles/' + id);
+                    // if (res.meta.status !== 200) {
+                    //     return this.$message.error('查询角色信息失败！')
+                    // }
 
-                    this.roleForm = res.data
+                    // this.roleForm = res.data
+                    this.$api.roles.GetRolesInfo(id).then(res => {
+                        this.roleForm = res.data
+                    }).catch(err => {
+                        return this.$message.error('查询角色信息失败！')
+                    })
                 }
             },
             // 对话框关闭事件
@@ -86,30 +91,43 @@
                     let id = this.$store.state.role.roleId;
                     // 这里区分是添加还是修改
                     if (this.$store.state.role.roleId === null) {
-                        let {
-                            data: res
-                        } = await this.$http.post('roles', this.roleForm);
+                        // let {
+                        //     data: res
+                        // } = await this.$http.post('roles', this.roleForm);
 
-                        if (res.meta.status !== 201) {
+                        // if (res.meta.status !== 201) {
+                        //     this.$message.error('添加角色失败');
+                        //     return
+                        // }
+                        // this.$message.success('添加角色成功');
+                        await this.$api.roles.AddRoles(this.roleForm).then(res => {
+                            this.$message.success('添加角色成功');
+                        }).catch(err => {
                             this.$message.error('添加角色失败');
-                            return
-                        }
-                        this.$message.success('添加角色成功');
+                        })
                     } else {
                         // 发起修改角色信息的数据请求
-                        let {
-                            data: res
-                        } = await this.$http.put(
-                            'roles/' + id, {
-                                roleName: this.roleForm.roleName,
-                                roleDesc: this.roleForm.roleDesc
-                            }
-                        )
-                        if (res.meta.status !== 200) {
-                            return this.$message.error('更新角色信息失败！')
-                        }
-                        // 提示修改成功
-                        this.$message.success('更新角色信息成功！')
+                        // let {
+                        //     data: res
+                        // } = await this.$http.put(
+                        //     'roles/' + id, {
+                        //         roleName: this.roleForm.roleName,
+                        //         roleDesc: this.roleForm.roleDesc
+                        //     }
+                        // )
+                        // if (res.meta.status !== 200) {
+                        //     return this.$message.error('更新角色信息失败！')
+                        // }
+                        // // 提示修改成功
+                        // this.$message.success('更新角色信息成功！')
+                        await this.$api.roles.EditRole(id,{
+                            roleName: this.roleForm.roleName,
+                            roleDesc: this.roleForm.roleDesc
+                        }).then(res => {
+                            this.$message.success('更新角色信息成功！')
+                        }).catch(err => {
+                            this.$message.error('更新角色信息失败！')
+                        })
                     }
                     // 关闭窗口
                     this.$store.commit('CloseRoleDialog', false);

@@ -9,7 +9,7 @@
       <el-row :gutter="20">
         <el-col :span="8">
           <el-input placeholder="请输入内容" v-model="queryInfo.query" clearable @clear="getGoodsList">
-            <el-button slot="append" icon="el-icon-search" @click="getGoodsList"></el-button>
+            <el-button slot="append" icon="el-icon-search" @click="getGoodsList(1)"></el-button>
           </el-input>
         </el-col>
         <el-col :span="4">
@@ -70,19 +70,26 @@ export default {
   },
   methods: {
     // 获取商品列表
-    async getGoodsList() {
-      let { data: res } = await this.$http.get(`goods`, {
-        params: this.queryInfo
+    getGoodsList(num = 0) {
+      // let { data: res } = await this.$http.get(`goods`, {
+      //   params: this.queryInfo
+      // })
+      // if (res.meta.status !== 200) {
+      //   return this.$message.error("获取商品列表失败")
+      // }
+      // this.$message.success("获取商品列表成功")
+      // this.goodslist = res.data.goods
+      // this.total = res.data.total
+        if (num == 1) {
+          this.queryInfo.pagenum = 1
+        }
+      this.$api.goods.GetGoodsList(this.queryInfo).then(res => {
+        this.$message.success("获取商品列表成功")        
+        this.goodslist = res.data.goods
+        this.total = res.data.total
+      }).catch(err => {
+        this.$message.error("获取商品列表失败")
       })
-
-      if (res.meta.status !== 200) {
-        return this.$message.error("获取商品列表失败")
-      }
-
-      this.$message.success("获取商品列表成功")
-      console.log(res)
-      this.goodslist = res.data.goods
-      this.total = res.data.total
     },
     // 分页大小变化事件
     handleSizeChange(newSize){
@@ -103,16 +110,24 @@ export default {
       })
         .then(async result => {
           if (result === "confirm") {
-            const { data: res } = await this.$http.delete("goods/" + id)
-
-            if (res.meta.status !== 200) {
-              return this.$message.error("删除商品失败！")
-            }
-            this.$message({
-              type: "success",
-              message: "删除成功!"
+            // const { data: res } = await this.$http.delete("goods/" + id)
+            // if (res.meta.status !== 200) {
+            //   return this.$message.error("删除商品失败！")
+            // }
+            // this.$message({
+            //   type: "success",
+            //   message: "删除成功!"
+            // })
+            // this.getCateList()
+            await this.$api.goods.DelGood(id).then(res => {
+              this.$message({
+                type: "success",
+                message: "删除成功!"
+              })
+              this.getCateList()
+            }).catch(err => {
+              this.$message.error("删除商品失败！")
             })
-            this.getCateList()
           }
         })
         .catch(result => {
