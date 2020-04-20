@@ -3,6 +3,10 @@ import axios from 'axios'; // 引入axios
 import router from '../router';
 //import QS from 'qs'; // 引入qs模块，用来序列化post类型的数据，后面会提到
 // vant的toast提示框组件，大家可根据自己的ui组件更改。
+// 导入nprogress包
+import NProgress from 'nprogress'
+import 'nprogress/nprogress.css'
+
 import {
     Message
 } from 'element-ui';
@@ -109,7 +113,8 @@ axios.interceptors.request.use(
         // return config;
 
         // (可以使用vuex，但是这里我直接在sessionStore里面判断有没有token就行了)
-        console.log(config);
+        // console.log(config);
+        NProgress.start()
         config.headers.Authorization = window.sessionStorage.getItem('token');
         return config;
 
@@ -123,7 +128,8 @@ axios.interceptors.response.use(
     response => {
         // 如果返回的状态码为200，说明接口请求成功，可以正常拿到数据     
         // 否则的话抛出错误
-        console.log(response);
+        // console.log(response);
+        NProgress.done()
         if (response.data.meta.status === 200 || response.data.meta.status === 201) {
             return Promise.resolve(response.data);
         } else {

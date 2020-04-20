@@ -25,6 +25,10 @@ import 'quill/dist/quill.snow.css' // for snow theme
 import 'quill/dist/quill.bubble.css' // for bubble theme
 Vue.use(VueQuillEditor)
 
+// 导入nprogress包
+import NProgress from 'nprogress'
+import 'nprogress/nprogress'
+
 // 导入api管理
 Vue.prototype.$api = Api
 
