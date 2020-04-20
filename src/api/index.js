@@ -4,5 +4,6 @@ import * as rights from './rights'
 import * as roles from './roles'
 import * as cate from './categories'
 import * as goods from './goods'
+import * as orders from './orders'
 
-export { login, user, rights, roles, cate, goods }
+export { login, user, rights, roles, cate, goods, orders }
