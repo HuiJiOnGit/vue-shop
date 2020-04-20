@@ -22,7 +22,7 @@ export function AddGood(data) {
  * @param {*} id 
  */
 export function GetGoodsInfo(id) {
-    return axios.get(`goods/${id}`,data)
+    return axios.get(`goods/${id}`)
 }
 /**
  * 编辑提交商品

@@ -33,14 +33,14 @@
         user-select:none;
     }
     .welcome-font-title{
-        width:100%;
+        width:350px;
         font-size:4vmax;
         margin:0;
         padding:0;
         color:#409EFF;
     }
     .welcome-font-name{
-        width:100%;
+        width:350px;
         font-size:3vmax;
         font-weight:100;
         margin:0;

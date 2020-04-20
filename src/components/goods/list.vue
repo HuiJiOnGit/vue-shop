@@ -27,8 +27,8 @@
           <template v-slot:default="scope">{{scope.row.add_time | dateFormat}}</template>
         </el-table-column>
         <el-table-column label="操作" width="200px">
-          <template v-slot:default>
-            <el-button type="primary" icon="el-icon-edit" size="mini">编辑</el-button>
+          <template v-slot:default="scope">
+            <el-button type="primary" icon="el-icon-edit" size="mini" @click="OpenEditGood(scope.row)">编辑</el-button>
             <el-button type="danger" icon="el-icon-delete" size="mini" @click="DeleteById(scope.row.goods_id)">删除</el-button>
           </template>
         </el-table-column>
@@ -124,8 +124,9 @@ export default {
                 type: "success",
                 message: "删除成功!"
               })
-              this.getCateList()
+              this.getGoodsList()
             }).catch(err => {
+              console.log(err);
               this.$message.error("删除商品失败！")
             })
           }
@@ -142,6 +143,10 @@ export default {
     // 添加商品页面
     AddGoodPage(){
         this.$router.push('/goods/add');
+    },
+    // 打开编辑商品界面
+    OpenEditGood(row) {
+      this.$router.push({path: '/goods/add',query: {goodId: row.goods_id}})
     }
   },
   created() {

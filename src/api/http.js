@@ -23,10 +23,10 @@ axios.defaults.baseURL可以设置axios的默认请求地址就不多说了。
 // }
 
 // 设置baseurl
-axios.defaults.baseURL = 'http://47.115.124.102:8888/api/private/v1'
-// 'http://47.115.124.102:8888/api/private/v1'
-// 'http://119.23.53.78:8888/api/private/v1'
-//'http://127.0.0.1:8888/api/private/v1/'
+// axios.defaults.baseURL = 'http://47.115.124.102:8888/api/private/v1'
+// axios.defaults.baseURL ='http://47.115.124.102:8888/api/private/v1'
+// axios.defaults.baseURL ='http://119.23.53.78:8888/api/private/v1'
+axios.defaults.baseURL ='http://127.0.0.1:8888/api/private/v1/'
 
 // 请求超时时间
 axios.defaults.timeout = 10000;

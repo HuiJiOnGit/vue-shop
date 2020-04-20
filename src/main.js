@@ -14,9 +14,18 @@ import './assets/css/global.css'
 import './assets/fonts/iconfont.css'
 //引入黑暗模式
 import './assets/css/dark.css'
-import axios from 'axios'
+// import axios from 'axios'
+// Vue.prototype.$http = axios
 
-Vue.prototype.$http = axios
+// 导入富文本编辑器
+import VueQuillEditor from 'vue-quill-editor'
+
+import 'quill/dist/quill.core.css' // import styles
+import 'quill/dist/quill.snow.css' // for snow theme
+import 'quill/dist/quill.bubble.css' // for bubble theme
+Vue.use(VueQuillEditor)
+
+// 导入api管理
 Vue.prototype.$api = Api
 
 Vue.config.productionTip = false

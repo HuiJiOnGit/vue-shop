@@ -154,6 +154,7 @@
 
     .login-form {
       min-width: 360px;
+      text-align: center;
     }
   }
 </style>
